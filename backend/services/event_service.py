@@ -11,7 +11,6 @@ def events_collection():
 
 
 def ensure_indexes():
-    """Make date searches fast."""
     events_collection().create_index("date")
 
 
