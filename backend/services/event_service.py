@@ -16,12 +16,10 @@ def ensure_indexes():
 
 
 def utc_now():
-    """Current time in UTC (without timezone info, to match what MongoDB returns)."""
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def parse_event_date(value):
-    """Turn an ISO date text into a UTC datetime. Returns None if invalid."""
     if not isinstance(value, str) or not value.strip():
         return None
     text = value.strip()
@@ -37,7 +35,6 @@ def parse_event_date(value):
 
 
 def validate_event_data(data):
-    """Check the input. Returns (clean_data, errors)."""
     clean = {}
     errors = {}
 
@@ -89,7 +86,6 @@ def validate_event_data(data):
 
 
 def create_event(clean):
-    """Save a new event and return it."""
     doc = {**clean, "registered_count": 0, "created_at": utc_now()}
     result = events_collection().insert_one(doc)
     doc["_id"] = result.inserted_id
@@ -97,13 +93,11 @@ def create_event(clean):
 
 
 def list_upcoming_events():
-    """Only events whose date is still in the future, soonest first."""
     cursor = events_collection().find({"date": {"$gt": utc_now()}}).sort("date", 1)
     return list(cursor)
 
 
 def get_event_by_id(event_id):
-    """Return one event, or None if the id is invalid or not found."""
     try:
         object_id = ObjectId(event_id)
     except (InvalidId, TypeError):
@@ -112,7 +106,6 @@ def get_event_by_id(event_id):
 
 
 def serialize_event(doc):
-    """Turn a MongoDB document into JSON-friendly data (ObjectId becomes text)."""
     registered = doc.get("registered_count", 0)
     return {
         "id": str(doc["_id"]),
