@@ -1,44 +1,60 @@
-
 from flask import Blueprint, jsonify, request
 
 from services import event_service, registration_service
 
-
 registrations_bp = Blueprint("registrations", __name__)
 
 
-@registrations_bp.route(
-    "/api/events/<event_id>/registrations",
-    methods=["POST"],
-)
+@registrations_bp.route("/api/events/<event_id>/registrations", methods=["POST"])
 def register(event_id):
     data = request.get_json(silent=True)
-
     if not isinstance(data, dict):
         return jsonify({"error": "Request body must be valid JSON."}), 400
 
     clean, errors = registration_service.validate_registration_data(data)
-
     if errors:
-        return jsonify({
-            "error": "Validation failed",
-            "details": errors,
-        }), 400
+        return jsonify({"error": "Validation failed", "details": errors}), 400
 
-    registration, problem = registration_service.register_attendee(
-        event_id,
-        clean,
-    )
-
+    registration, problem = registration_service.register_attendee(event_id, clean)
     if problem:
         status, message = problem
         return jsonify({"error": message}), status
 
     event = event_service.get_event_by_id(event_id)
-
     return jsonify({
-        "registration": registration_service.serialize_registration(
-            registration
-        ),
+        "registration": registration_service.serialize_registration(registration),
         "event": event_service.serialize_event(event),
     }), 201
+
+
+@registrations_bp.route("/api/events/<event_id>/attendees", methods=["GET"])
+def list_attendees(event_id):
+    event, attendees = registration_service.list_attendees(event_id)
+    if event is None:
+        return jsonify({"error": "Event not found"}), 404
+
+    serialized = event_service.serialize_event(event)
+    return jsonify({
+        "event": serialized,
+        "attendees": [
+            registration_service.serialize_registration(a) for a in attendees
+        ],
+        "count": len(attendees),
+        "remaining_capacity": serialized["available_seats"],
+    }), 200
+
+
+@registrations_bp.route(
+    "/api/events/<event_id>/registrations/<registration_id>", methods=["DELETE"]
+)
+def cancel(event_id, registration_id):
+    problem = registration_service.cancel_registration(event_id, registration_id)
+    if problem:
+        status, message = problem
+        return jsonify({"error": message}), status
+
+    event = event_service.get_event_by_id(event_id)
+    return jsonify({
+        "message": "Registration cancelled.",
+        "event": event_service.serialize_event(event),
+    }), 200
