@@ -32,3 +32,13 @@ def get_event(event_id):
     if event is None:
         return jsonify({"error": "Event not found"}), 404
     return jsonify(event_service.serialize_event(event)), 200
+
+
+@events_bp.route("/api/events/<event_id>", methods=["DELETE"])
+def delete_event(event_id):
+    success, status, message = event_service.delete_event_by_id(event_id)
+
+    if not success:
+        return jsonify({"error": message}), status
+
+    return jsonify({"message": message}), status

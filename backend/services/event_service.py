@@ -116,3 +116,41 @@ def serialize_event(doc):
         "registered_count": registered,
         "available_seats": doc["capacity"] - registered,
     }
+
+def delete_event_by_id(event_id):
+    try:
+        object_id = ObjectId(event_id)
+    except (InvalidId, TypeError):
+        return False, 404, "Event not found."
+
+    from services.registration_service import registrations_collection
+
+    existing_registration = registrations_collection().find_one(
+        {"event_id": object_id},
+        {"_id": 1},
+    )
+
+    if existing_registration:
+        return (
+            False,
+            409,
+            "This event has registrations. Cancel them first, then delete the event.",
+        )
+
+    result = events_collection().delete_one(
+        {"_id": object_id, "registered_count": 0}
+    )
+
+    if result.deleted_count == 1:
+        return True, 200, "Event deleted successfully."
+
+    event = events_collection().find_one({"_id": object_id}, {"_id": 1})
+
+    if event is None:
+        return False, 404, "Event not found."
+
+    return (
+        False,
+        409,
+        "This event has registrations. Cancel them first, then delete the event.",
+    )

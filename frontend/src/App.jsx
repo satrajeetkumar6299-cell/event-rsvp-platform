@@ -1,8 +1,10 @@
+
 import { useState } from "react";
 import EventList from "./components/EventList.jsx";
 import EventForm from "./components/EventForm.jsx";
 import EventDetails from "./components/EventDetails.jsx";
 import SuccessMessage from "./components/SuccessMessage.jsx";
+import OrganizerDashboard from "./components/OrganizerDashboard.jsx";
 import "./App.css";
 
 function App() {
@@ -32,6 +34,7 @@ function App() {
     <div className="app">
       <header className="navbar">
         <span className="brand">Corporate Events</span>
+
         <nav className="nav-links" aria-label="Main">
           <button
             type="button"
@@ -40,12 +43,21 @@ function App() {
           >
             Events
           </button>
+
           <button
             type="button"
             className={page === "create" ? "nav-btn active" : "nav-btn"}
             onClick={() => showPage("create")}
           >
             Create Event
+          </button>
+
+          <button
+            type="button"
+            className={page === "organizer" ? "nav-btn active" : "nav-btn"}
+            onClick={() => showPage("organizer")}
+          >
+            Organizer Dashboard
           </button>
         </nav>
       </header>
@@ -58,6 +70,7 @@ function App() {
             <EventList onSelect={openDetails} />
           </>
         )}
+
         {page === "details" && (
           <EventDetails
             key={selectedId}
@@ -65,7 +78,12 @@ function App() {
             onBack={() => showPage("events")}
           />
         )}
-        {page === "create" && <EventForm onCreated={handleCreated} />}
+
+        {page === "create" && (
+          <EventForm onCreated={handleCreated} />
+        )}
+
+        {page === "organizer" && <OrganizerDashboard />}
       </main>
 
       <footer className="footer">

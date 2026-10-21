@@ -1,5 +1,5 @@
 
-function EventCard({ event, onSelect }) {
+function EventCard({ event, onSelect, onDelete, deleting = false }) {
     const when = new Date(event.date).toLocaleString([], {
         dateStyle: "medium",
         timeStyle: "short",
@@ -22,13 +22,24 @@ function EventCard({ event, onSelect }) {
                     : `${event.available_seats} of ${event.capacity} seats available`}
             </p>
 
-            <button
-                type="button"
-                className="btn btn-small"
-                onClick={() => onSelect(event.id)}
-            >
-                View details
-            </button>
+            <div className="event-card-actions">
+                <button
+                    type="button"
+                    className="btn btn-small"
+                    onClick={() => onSelect(event.id)}
+                >
+                    View details
+                </button>
+
+                <button
+                    type="button"
+                    className="btn btn-small btn-danger"
+                    onClick={() => onDelete(event.id)}
+                    disabled={deleting}
+                >
+                    {deleting ? "Deleting..." : "Delete Event"}
+                </button>
+            </div>
         </article>
     );
 }
