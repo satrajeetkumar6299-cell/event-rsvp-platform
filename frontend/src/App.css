@@ -1,4 +1,4 @@
-css .app {
+.app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -336,4 +336,13 @@ css .app {
   .form h2 {
     font-size: 1.6rem;
   }
+}
+
+.event-card-actions .btn-danger {
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
+.event-card-actions .btn-danger:hover {
+  background-color: #b91c1c;
 }
