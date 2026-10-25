@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { getEvents, deleteEvent } from "../api/client.js";
 import EventCard from "./EventCard.jsx";
@@ -13,21 +12,29 @@ function EventList({ onSelect }) {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
-    async function loadEvents() {
-        setError("");
-
-        try {
-            const data = await getEvents();
-            setEvents(data.events || []);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    }
-
     useEffect(() => {
-        loadEvents();
+        let ignore = false;
+
+        getEvents()
+            .then((data) => {
+                if (!ignore) {
+                    setEvents(data.events || []);
+                }
+            })
+            .catch((err) => {
+                if (!ignore) {
+                    setError(err.message);
+                }
+            })
+            .finally(() => {
+                if (!ignore) {
+                    setLoading(false);
+                }
+            });
+
+        return () => {
+            ignore = true;
+        };
     }, []);
 
     async function handleDelete(eventId) {

@@ -1,37 +1,45 @@
-
 import { useEffect, useState } from "react";
 import { getAttendees, cancelRegistration } from "../api/client.js";
 import ErrorMessage from "./ErrorMessage.jsx";
 import Loading from "./Loading.jsx";
 
 function AttendeeList({ eventId, onChanged }) {
-    const [attendees, setAttendees] = useState([]);
-    const [event, setEvent] = useState(null);
-    const [count, setCount] = useState(0);
-    const [remainingCapacity, setRemainingCapacity] = useState(0);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+    const [view, setView] = useState(null);
+    const [reloadToken, setReloadToken] = useState(0);
     const [busyId, setBusyId] = useState("");
-
-    async function loadAttendees() {
-        setError("");
-
-        try {
-            const data = await getAttendees(eventId);
-            setAttendees(data.attendees || []);
-            setEvent(data.event || null);
-            setCount(data.count ?? data.attendees?.length ?? 0);
-            setRemainingCapacity(data.remaining_capacity ?? 0);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    }
+    const [actionError, setActionError] = useState(null);
 
     useEffect(() => {
-        loadAttendees();
-    }, [eventId]);
+        let ignore = false;
+
+        getAttendees(eventId)
+            .then((data) => {
+                if (!ignore) {
+                    setView({ eventId, data, error: "" });
+                }
+            })
+            .catch((err) => {
+                if (!ignore) {
+                    setView((previous) => ({
+                        eventId,
+                        data:
+                            previous && previous.eventId === eventId
+                                ? previous.data
+                                : null,
+                        error: err.message,
+                    }));
+                }
+            });
+
+        return () => {
+            ignore = true;
+        };
+    }, [eventId, reloadToken]);
+
+    function refresh() {
+        setActionError(null);
+        setReloadToken((token) => token + 1);
+    }
 
     async function handleCancel(attendee) {
         const confirmed = window.confirm(
@@ -41,25 +49,37 @@ function AttendeeList({ eventId, onChanged }) {
         if (!confirmed) return;
 
         setBusyId(attendee.id);
-        setError("");
+        setActionError(null);
 
         try {
             await cancelRegistration(eventId, attendee.id);
-            await loadAttendees();
+            setReloadToken((token) => token + 1);
 
             if (onChanged) {
                 onChanged();
             }
         } catch (err) {
-            setError(err.message);
+            setActionError({ eventId, message: err.message });
         } finally {
             setBusyId("");
         }
     }
 
-    if (loading) {
+    const current = view && view.eventId === eventId ? view : null;
+
+    if (!current) {
         return <Loading text="Loading attendees..." />;
     }
+
+    const data = current.data;
+    const attendees = data ? data.attendees || [] : [];
+    const event = data ? data.event : null;
+    const count = data ? data.count ?? attendees.length : 0;
+    const remainingCapacity = data ? data.remaining_capacity ?? 0 : 0;
+    const message =
+        actionError && actionError.eventId === eventId
+            ? actionError.message
+            : current.error;
 
     return (
         <section className="card attendee-panel">
@@ -67,25 +87,28 @@ function AttendeeList({ eventId, onChanged }) {
                 <div>
                     <h2>Attendee List</h2>
                     <p>
-                        {event?.title || "Event"} · {count} registered ·{" "}
-                        {remainingCapacity} seats remaining
+                        {data
+                            ? `${event?.title || "Event"} · ${count} registered · ${remainingCapacity} seats remaining`
+                            : "Attendees could not be loaded."}
                     </p>
                 </div>
 
                 <button
                     type="button"
                     className="btn btn-small"
-                    onClick={loadAttendees}
+                    onClick={refresh}
                 >
                     Refresh
                 </button>
             </div>
 
-            {error && <ErrorMessage message={error} />}
+            {message && <ErrorMessage message={message} />}
 
-            {attendees.length === 0 ? (
+            {data && attendees.length === 0 && (
                 <p className="empty">No attendees registered yet.</p>
-            ) : (
+            )}
+
+            {data && attendees.length > 0 && (
                 <div className="attendee-table-wrap">
                     <table className="attendee-table">
                         <thead>
