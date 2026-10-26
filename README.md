@@ -24,6 +24,21 @@ A full-stack Event RSVP Platform built using **React, Flask, and MongoDB**. User
 - **Testing:** Python `unittest`, Vitest, React Testing Library
 - **Version Control:** Git and GitHub
 
+## Screenshots
+
+### Events Page
+![Events Page](docs/screenshots/events-page.png)
+
+### Create Event
+![Create Event](docs/screenshots/create-event.png)
+
+### Event Details and Registration
+![Event Details and Registration](docs/screenshots/event-details.png)
+
+### Organizer Dashboard
+![Organizer Dashboard](docs/screenshots/organizer-dashboard.png)
+
+
 ## Project Structure
 
 ```text
@@ -185,16 +200,6 @@ Both commands passed in the previously verified local run.
 - Configure `FRONTEND_ORIGIN` to match the trusted frontend origin in each environment.
 - Do not expose database credentials in source code, logs, screenshots, or public repositories.
 - Review deployment settings before making the application publicly accessible.
-
-## Screenshots
-
-Screenshots have not yet been added to this repository. Add application screenshots here after capturing the working frontend.
-
-For example, once a screenshot is saved in `screenshots/event-list.png`, it can be displayed using:
-
-```markdown
-![Event list screen](screenshots/event-list.png)
-```
 
 ## Project Status
 
