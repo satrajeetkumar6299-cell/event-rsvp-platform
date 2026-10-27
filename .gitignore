@@ -13,3 +13,10 @@ dist/
 
 # macOS
 .DS_Store
+# Local MongoDB backups
+local_backup/
+
+# Environment files
+.env
+.env.*
+!.env.example

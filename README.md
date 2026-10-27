@@ -1,7 +1,7 @@
 
 # Event RSVP Platform
 
-A full-stack Event RSVP Platform built using **React, Flask, and MongoDB**. Users can create events, view event details, register attendees, manage registrations, and track event capacity.
+A full-stack Corporate Event RSVP Platform built using **React, Flask, and MongoDB Atlas**. Users can browse upcoming events, create events, view event details, register attendees, manage registrations, and track event capacity.
 
 ## Features
 
@@ -20,7 +20,7 @@ A full-stack Event RSVP Platform built using **React, Flask, and MongoDB**. User
 
 - **Frontend:** React, JavaScript, Vite, CSS
 - **Backend:** Python, Flask, REST API
-- **Database:** MongoDB with PyMongo
+- **Database:** MongoDB Atlas with PyMongo
 - **Testing:** Python `unittest`, Vitest, React Testing Library
 - **Version Control:** Git and GitHub
 
@@ -67,7 +67,7 @@ Install the following before running the project:
 
 - Python 3
 - Node.js and npm
-- MongoDB
+- MongoDB Atlas (or a local MongoDB instance)
 - Git
 
 ## Environment Configuration
@@ -76,7 +76,7 @@ The backend reads configuration from environment variables.
 
 | Variable | Default value | Purpose |
 |---|---|---|
-| `MONGO_URI` | `mongodb://localhost:27017` | MongoDB connection URI |
+| `MONGO_URI` | Set through environment/configuration | MongoDB Atlas or local MongoDB connection URI |
 | `DB_NAME` | `event_rsvp` | Development database name |
 | `FRONTEND_ORIGIN` | `http://localhost:5173` | Allowed frontend origin |
 | `PORT` | `5001` | Backend port |
@@ -203,9 +203,9 @@ Both commands passed in the previously verified local run.
 
 ## Project Status
 
-The project includes event and registration APIs, a React frontend, MongoDB integration, and automated backend tests.
+The project includes event creation and listing, event details, attendee registration and cancellation, organizer attendee management, capacity tracking, a React frontend, Flask REST APIs, and MongoDB integration. The current development setup has displayed eight events in the frontend and returned eight events from the events API.
 
-The backend test suite and frontend checks have passed in local runs. Security review, screenshots, Docker setup, and deployment verification may still be required before the project is considered deployment-ready.
+The project has been tested locally. Run the backend tests, frontend tests, lint, and production build again before claiming that the latest version passes all checks. Review credentials and deployment settings before publishing.
 
 ## Author
 
